@@ -19,20 +19,16 @@ var packageIndexSingleDatas = versions.Select(x => PackageIndexTomlParser.ParseS
 //     Console.WriteLine(packageUrl.URL);
 // }
 var sb = new StringBuilder();
-foreach (var packageIndexSingleData in packageIndexSingleDatas)
+var checkAll = await URLCheckerBase.CheckAll(packageIndexSingleDatas);
+
+foreach (var (checkStatus, newestVersionFileName, packageIndexSingleData) in checkAll)
 {
-    if (packageIndexSingleData.Url.URL.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/dist/")
-        || packageIndexSingleData.Url.URL.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/3rdparty/")
-        || packageIndexSingleData.Url.URL.StartsWith("https://mirror.iscas.ac.cn/openeuler-sig-riscv/openEuler-RISC-V/preview/openEuler-23.09-V1-riscv64/"))
-    {
-        var check = new RuyiDistMirrorChecker().Check(packageIndexSingleData);
-        //Console.WriteLine($"{Path.GetFileName(packageIndexSingleData.Url.URL)}: {check.Result.CheckStatus}");
-    }
-    else
+    if (checkStatus == CheckStatus.InDev)
     {
         Console.WriteLine(packageIndexSingleData.Url.URL);
     }
 }
+
 // await RuyiDistMirrorChecker.GetAllFiles();
 // var validateResult = await WebLinkValidator.Validate(packageIndexSingleDatas);
 // WebLinkValidator.Print(validateResult);

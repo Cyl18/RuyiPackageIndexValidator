@@ -12,21 +12,7 @@ internal class RuyiDistMirrorChecker : URLCheckerBase
     public override async Task<URLCheckResult> Check(PackageIndexSingleData data)
     {
         var url = data.Url.URL;
-        string fileName;
-        if (url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/3rdparty/"))
-        {
-            fileName = url["https://mirror.iscas.ac.cn/ruyisdk/3rdparty/".Length..];
-
-        }
-        else if (url.StartsWith("https://mirror.iscas.ac.cn/openeuler-sig-riscv/openEuler-RISC-V/preview/openEuler-23.09-V1-riscv64/"))
-        {
-            fileName = url["https://mirror.iscas.ac.cn/openeuler-sig-riscv/openEuler-RISC-V/preview/openEuler-23.09-V1-riscv64/".Length..];
-        }
-        else
-        {
-            fileName = url["https://mirror.iscas.ac.cn/ruyisdk/dist/".Length..];
-
-        }
+        var fileName = Path.GetFileName(url);
         var softwareCheckerRegex = new Regex("^(.*?)-");
         var software = softwareCheckerRegex.Match(fileName).Groups[1].Value;
         var allFiles = await GetAllFiles();
@@ -106,7 +92,7 @@ internal class RuyiDistMirrorChecker : URLCheckerBase
                     }
                     else
                     {
-                        return new URLCheckResult(CheckStatus.NotImplemented, null);
+                        return new URLCheckResult(CheckStatus.NotImplemented, null, data);
 
                     }
                 }
@@ -127,19 +113,19 @@ internal class RuyiDistMirrorChecker : URLCheckerBase
 
             if (currentNewestVersion == null)
             {
-                return new URLCheckResult(CheckStatus.CannotFindRelease, null);
+                return new URLCheckResult(CheckStatus.CannotFindRelease, null, data);
             }
 
             if (fileName == currentNewestVersionResult!.FullFileName)
             {
-                return new URLCheckResult(CheckStatus.AlreadyNewest, null);
+                return new URLCheckResult(CheckStatus.AlreadyNewest, null, data);
             }
 
             if (GetVersionResult(fileName) == currentNewestVersionResult)
             {
-                return new URLCheckResult(CheckStatus.AlreadyNewest, null);
+                return new URLCheckResult(CheckStatus.AlreadyNewest, null, data);
             }
-            return new URLCheckResult(CheckStatus.UpdateRequired, currentNewestVersionResult.FullFileName);
+            return new URLCheckResult(CheckStatus.UpdateRequired, currentNewestVersionResult.FullFileName, data);
         }
 
         throw new Exception();
@@ -186,81 +172,113 @@ internal class RuyiDistMirrorChecker : URLCheckerBase
         return match;
     }
 
-    public class RuyiDistVersion : IComparable<RuyiDistVersion>, IComparable
+}
+
+public class RuyiDistVersion : IComparable<RuyiDistVersion>, IComparable
+{
+    protected bool Equals(RuyiDistVersion other)
     {
-
-        public RuyiDistVersion(string? version, string? date)
-        {
-            this.version = version == null ? null : Version.Parse(version);
-            this.date = date == null ? null : new Regex("(\\d{4}-?\\d{4})").Match(date).Groups[0].Value.Replace("-", "").ToInt();
-        }
-
-        public int CompareTo(RuyiDistVersion? other)
-        {
-            if (other == null)
-            {
-                return 1; // 当前对象大于 null
-            }
-
-            if (this.date != null)
-            {
-                return this.date!.Value.CompareTo(other.date!.Value);
-            }
-
-            // 比较 Major 版本
-
-            if (this.version.Major != other.version.Major)
-            {
-                return this.version.Major.CompareTo(other.version.Major);
-            }
-
-            // 比较 Minor 版本
-
-            if (this.version.Minor != other.version.Minor)
-            {
-                return this.version.Minor.CompareTo(other.version.Minor);
-            }
-
-            // 比较 Patch 版本
-
-            if (this.version.Build != other.version.Build)
-            {
-                return this.version.Build.CompareTo(other.version.Build);
-            }
-
-            // 如果 Major、Minor 和 Patch 都相等，则两个版本相等
-            throw new Exception("版本号相同");
-        }
-
-        public int CompareTo(object? obj)
-        {
-            if (obj is null) return 1;
-            if (ReferenceEquals(this, obj)) return 0;
-            return obj is RuyiDistVersion other ? CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(RuyiDistVersion)}");
-        }
-
-        public static bool operator <(RuyiDistVersion? left, RuyiDistVersion? right)
-        {
-            return Comparer<RuyiDistVersion>.Default.Compare(left, right) < 0;
-        }
-
-        public static bool operator >(RuyiDistVersion? left, RuyiDistVersion? right)
-        {
-            return Comparer<RuyiDistVersion>.Default.Compare(left, right) > 0;
-        }
-
-        public static bool operator <=(RuyiDistVersion? left, RuyiDistVersion? right)
-        {
-            return Comparer<RuyiDistVersion>.Default.Compare(left, right) <= 0;
-        }
-
-        public static bool operator >=(RuyiDistVersion? left, RuyiDistVersion? right)
-        {
-            return Comparer<RuyiDistVersion>.Default.Compare(left, right) >= 0;
-        }
-
-        private Version? version;
-        private int? date;
+        return Equals(version, other.version) && date == other.date;
     }
+
+    public static bool operator ==(RuyiDistVersion? left, RuyiDistVersion? right)
+    {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(RuyiDistVersion? left, RuyiDistVersion? right)
+    {
+        return !Equals(left, right);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((RuyiDistVersion)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(version, date);
+    }
+
+    public RuyiDistVersion(string? version, string? date)
+    {
+        this.version = version == null ? null : Version.TryParse(version, out var ver) ? ver : null;
+        if (date != null)
+        {
+            var match = new Regex("(\\d{4}-?\\d{4})").Match(date);
+            this.date = match.Success ? match.Groups[0].Value.Replace("-", "").ToInt() : null;
+        }
+    }
+
+    public int CompareTo(RuyiDistVersion? other)
+    {
+        if (other == null)
+        {
+            return 1; // 当前对象大于 null
+        }
+
+        if (this.date != null)
+        {
+            return this.date!.Value.CompareTo(other.date!.Value);
+        }
+
+        // 比较 Major 版本
+
+        if (this.version.Major != other.version.Major)
+        {
+            return this.version.Major.CompareTo(other.version.Major);
+        }
+
+        // 比较 Minor 版本
+
+        if (this.version.Minor != other.version.Minor)
+        {
+            return this.version.Minor.CompareTo(other.version.Minor);
+        }
+
+        // 比较 Patch 版本
+
+        if (this.version.Build != other.version.Build)
+        {
+            return this.version.Build.CompareTo(other.version.Build);
+        }
+
+        // 如果 Major、Minor 和 Patch 都相等，则两个版本相等
+        throw new Exception("版本号相同");
+    }
+
+    public int CompareTo(object? obj)
+    {
+        if (obj is null) return 1;
+        if (ReferenceEquals(this, obj)) return 0;
+        return obj is RuyiDistVersion other ? CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(RuyiDistVersion)}");
+    }
+
+    public static bool operator <(RuyiDistVersion? left, RuyiDistVersion? right)
+    {
+        return Comparer<RuyiDistVersion>.Default.Compare(left, right) < 0;
+    }
+
+    public static bool operator >(RuyiDistVersion? left, RuyiDistVersion? right)
+    {
+        return Comparer<RuyiDistVersion>.Default.Compare(left, right) > 0;
+    }
+
+    public static bool operator <=(RuyiDistVersion? left, RuyiDistVersion? right)
+    {
+        return Comparer<RuyiDistVersion>.Default.Compare(left, right) <= 0;
+    }
+
+    public static bool operator >=(RuyiDistVersion? left, RuyiDistVersion? right)
+    {
+        return Comparer<RuyiDistVersion>.Default.Compare(left, right) >= 0;
+    }
+
+    public Version? version { get; }
+    public int? date { get; }
 }
 public record VersionResult(string FullFileName, string? Version, bool IsDate);
