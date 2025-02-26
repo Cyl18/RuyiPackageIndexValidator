@@ -16,7 +16,7 @@ namespace RuyiPackageIndexValidator
         private static ProgressBar progressBar;
         public static async Task<ValidateResult[]> Validate(PackageIndexSingleData[] datas)
         {
-            progressBar = new ProgressBar(datas.Length, "Validating Release URLs...",
+            progressBar = new ProgressBar(datas.Length - 1, "Validating Release URLs...",
                 new ProgressBarOptions() { ForegroundColor = ConsoleColor.Cyan });
             var tasks = datas.Select(async data => (data, task: await Exists(data.Url))).ToList();
 
@@ -51,7 +51,12 @@ namespace RuyiPackageIndexValidator
         {
             try
             {
-                var msg = await hc.SendAsync(new HttpRequestMessage(HttpMethod.Head, url.URL));
+                var requestUri = url.URL;
+                if (requestUri.StartsWith("wps"))
+                {
+                    return (true, "");
+                }
+                var msg = await hc.SendAsync(new HttpRequestMessage(HttpMethod.Head, requestUri));
                 progressBar.Tick();
                 return (msg.IsSuccessStatusCode, ((int)msg.StatusCode).ToString());
             }

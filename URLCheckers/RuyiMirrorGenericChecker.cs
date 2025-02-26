@@ -35,7 +35,7 @@ namespace RuyiPackageIndexValidator.URLCheckers
             var netDist = allFiles.OrderByDescending(x => x).First();
             if (netDist > version.Version)
             {
-                return new URLCheckResult(CheckStatus.UpdateRequired, reconstructedUrl + version.Version.date, data);
+                return new URLCheckResult(CheckStatus.UpdateRequired, reconstructedUrl + netDist.date, data);
             }
             else if (netDist == version.Version)
             {

@@ -18,7 +18,7 @@ namespace RuyiPackageIndexValidator.URLCheckers
         public static async Task<List<URLCheckResult>> CheckAll(PackageIndexSingleData[] datas,
             ValidateResult[] results)
         {
-            progressBar = new ProgressBar(datas.Length, "Checking Release Updates...",
+            progressBar = new ProgressBar(datas.Length - 1, "Checking Release Updates...",
                 new ProgressBarOptions() { ForegroundColor = ConsoleColor.Cyan });
             var result = new ConcurrentBag<URLCheckResult>();
             await Parallel.ForEachAsync(datas, async (data, token) =>
@@ -28,7 +28,7 @@ namespace RuyiPackageIndexValidator.URLCheckers
                 {
                     result.Add(new URLCheckResult(CheckStatus.CannotFindRelease, null, data));
                 }
-                if (url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/dist/") || url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/3rdparty/milkv/repacks/"))
+                else if (url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/dist/") || url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/3rdparty/milkv/repacks/"))
                 {
                     result.Add(await new RuyiDistMirrorChecker().Check(data));
                 }
@@ -49,6 +49,10 @@ namespace RuyiPackageIndexValidator.URLCheckers
                 {
                     result.Add(await new OpenWrtChecker().Check(data));
                 }
+                else if (url.StartsWith("wps://"))
+                {
+                    result.Add(await new WPSChecker().Check(data));
+                }
                 else
                 {
                     result.Add(new URLCheckResult(CheckStatus.InDev, null, data));
@@ -66,11 +70,11 @@ public record URLCheckResult(CheckStatus CheckStatus, string? NewestVersionFileN
 
 public enum CheckStatus
 {
-    AlreadyNewest,
-    Failed,
     UpdateRequired,
+    Failed,
     CannotFindRelease,
+    InDev,
     NotImplemented,
-    InDev
+    AlreadyNewest,
     // UnableToCheck,
 }

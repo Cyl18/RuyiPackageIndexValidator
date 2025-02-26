@@ -6,7 +6,7 @@ namespace RuyiPackageIndexValidator.URLCheckers;
 
 internal class GitHubReleaseChecker : URLCheckerBase
 {
-    private static GitHubClient githubClient = new GitHubClient(new Connection(new ProductHeaderValue("Cyl18"),
+    internal static GitHubClient githubClient = new GitHubClient(new Connection(new ProductHeaderValue("Cyl18"),
         new InMemoryCredentialStore(new Credentials(Token))));
 
     public override async Task<URLCheckResult> Check(PackageIndexSingleData data)
