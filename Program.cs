@@ -20,10 +20,11 @@ var packageIndexSingleDatas = versions.Select(x => PackageIndexTomlParser.ParseS
 // }
 var sb = new StringBuilder();
 var checkAll = await URLCheckerBase.CheckAll(packageIndexSingleDatas);
+var results = await WebLinkValidator.Validate(packageIndexSingleDatas);
 
 foreach (var (checkStatus, newestVersionFileName, packageIndexSingleData) in checkAll)
 {
-    if (checkStatus == CheckStatus.InDev)
+    if (checkStatus == CheckStatus.InDev && results.First(x => x.PackageIndexSingleData == packageIndexSingleData).IsSuccessStatusCode)
     {
         Console.WriteLine(packageIndexSingleData.Url.URL);
     }

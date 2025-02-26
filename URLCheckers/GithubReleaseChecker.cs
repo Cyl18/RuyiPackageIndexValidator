@@ -1,32 +1,39 @@
-﻿using Octokit;
+﻿using System.Diagnostics;
+using Octokit;
 using Octokit.Internal;
 
 namespace RuyiPackageIndexValidator.URLCheckers;
 
-internal class GithubReleaseChecker : URLCheckerBase
+internal class GitHubReleaseChecker : URLCheckerBase
 {
-    private static GitHubClient githubClient;
+    private static GitHubClient githubClient = new GitHubClient(new Connection(new ProductHeaderValue("Cyl18"),
+        new InMemoryCredentialStore(new Credentials(Token))));
 
-    public GithubReleaseChecker()
+    public override async Task<URLCheckResult> Check(PackageIndexSingleData data)
     {
-        githubClient = new GitHubClient(new Connection(new ProductHeaderValue("Cyl18"),
-            new InMemoryCredentialStore(new Credentials("TOKEN"))));
-    }
+        try
+        {
+            var latest = (await githubClient.Repository.Release.GetAll(data.Url.Segments[1], data.Url.Segments[2], new ApiOptions(){PageCount = 1, PageSize = 1}))[0];
+            if (latest is null)
+            {
+                return new URLCheckResult(CheckStatus.CannotFindRelease, "", data);
+            }
 
-    public override Task<URLCheckResult> Check(PackageIndexSingleData data)
-    {
-
-        throw new Exception();
-    }
-
-    private async Task<string> GetLatest(PackageUrl url)
-    {
-        var releases = await githubClient.Repository.Release.GetAll("octokit", "octokit.net");
-        var latest = releases[0];
-        Console.WriteLine(
-            "The latest release is tagged at {0} and is named {1}",
-            latest.TagName,
-            latest.Name);
-        throw new Exception();
+            if (data.Url.Segments[5] == latest.TagName)
+            {
+                return new URLCheckResult(CheckStatus.AlreadyNewest, latest.HtmlUrl, data);
+            }
+            else
+            {
+                Console.WriteLine($"UpdateRequired {data.Url.URL}\n {latest.HtmlUrl}");
+                Console.WriteLine();
+                return new URLCheckResult(CheckStatus.UpdateRequired, latest.HtmlUrl, data);
+            }
+        }
+        catch (Exception e)
+        {
+            Trace.Assert(e is ApiException, "zhule");
+            return new URLCheckResult(CheckStatus.Failed, "", data);
+        }
     }
 }

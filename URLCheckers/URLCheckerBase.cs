@@ -32,6 +32,10 @@ namespace RuyiPackageIndexValidator.URLCheckers
                     result.Add(await new RuyiMirrorGenericChecker().Check(data));
 
                 }
+                else if (url.StartsWith("https://github.com"))
+                {
+                    result.Add(await new GitHubReleaseChecker().Check(data));
+                }
                 else
                 {
                     result.Add(new URLCheckResult(CheckStatus.InDev, null, data));
@@ -52,7 +56,7 @@ public enum CheckStatus
     Failed,
     UpdateRequired,
     CannotFindRelease,
-    UnableToCheck,
     NotImplemented,
     InDev
+    // UnableToCheck,
 }
