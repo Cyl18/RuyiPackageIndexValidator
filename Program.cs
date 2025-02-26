@@ -56,6 +56,7 @@ var gist = await GitHubReleaseChecker.githubClient.Gist.Create(new NewGist()
     Files = { new KeyValuePair<string, string>($"ruyi-package-index-test-report-{dateTime}.md", sb.ToString()) },
     Public = true
 });
+Console.WriteLine();
 Console.WriteLine(gist.HtmlUrl);
 sb.ToString().SaveToFile("result.md");
 

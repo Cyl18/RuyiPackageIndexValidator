@@ -59,6 +59,7 @@ namespace RuyiPackageIndexValidator.URLCheckers
                 }
                 progressBar.Tick();
             });
+            progressBar.Dispose();
             return result.ToList();
         }
     }
