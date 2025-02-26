@@ -41,6 +41,6 @@ public enum CheckStatus
     Failed,
     UpdateRequired,
     CannotFindRelease,
-    UnableToCheck,
+    // UnableToCheck,
     NotImplemented
 }

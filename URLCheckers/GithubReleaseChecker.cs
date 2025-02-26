@@ -1,32 +1,32 @@
-﻿using Octokit;
+﻿using System.Diagnostics;
+using Octokit;
 using Octokit.Internal;
 
 namespace RuyiPackageIndexValidator.URLCheckers;
 
 internal class GithubReleaseChecker : URLCheckerBase
 {
-    private static GitHubClient githubClient;
+    private static GitHubClient githubClient = new GitHubClient(new Connection(new ProductHeaderValue("Cyl18"),
+        new InMemoryCredentialStore(new Credentials(Token))));
 
-    public GithubReleaseChecker()
+    public override async Task<URLCheckResult> Check(PackageIndexSingleData data)
     {
-        githubClient = new GitHubClient(new Connection(new ProductHeaderValue("Cyl18"),
-            new InMemoryCredentialStore(new Credentials("TOKEN"))));
-    }
+        try
+        {
+            var latest = await githubClient.Repository.Release.GetLatest(data.Url.Segments[1], data.Url.Segments[2]);
+            if (latest is null)
+            {
+                return new URLCheckResult(CheckStatus.CannotFindRelease, "");
+            }
 
-    public override Task<URLCheckResult> Check(PackageIndexSingleData data)
-    {
-
-        throw new Exception();
-    }
-
-    private async Task<string> GetLatest(PackageUrl url)
-    {
-        var releases = await githubClient.Repository.Release.GetAll("octokit", "octokit.net");
-        var latest = releases[0];
-        Console.WriteLine(
-            "The latest release is tagged at {0} and is named {1}",
-            latest.TagName,
-            latest.Name);
-        throw new Exception();
+            return data.Url.Segments[5] == latest.TagName
+                ? new URLCheckResult(CheckStatus.AlreadyNewest, latest.HtmlUrl)
+                : new URLCheckResult(CheckStatus.UpdateRequired, latest.HtmlUrl);
+        }
+        catch (Exception e)
+        {
+            Trace.Assert(e is ApiException, "zhule");
+            return new URLCheckResult(CheckStatus.Failed, "");
+        }
     }
 }
