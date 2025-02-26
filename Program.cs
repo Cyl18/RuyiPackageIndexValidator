@@ -19,15 +19,12 @@ var packageIndexSingleDatas = versions.Select(x => PackageIndexTomlParser.ParseS
 //     Console.WriteLine(packageUrl.URL);
 // }
 var sb = new StringBuilder();
-var checkAll = await URLCheckerBase.CheckAll(packageIndexSingleDatas);
 var results = await WebLinkValidator.Validate(packageIndexSingleDatas);
+var checkAll = await URLCheckerBase.CheckAll(packageIndexSingleDatas, results);
 
 foreach (var (checkStatus, newestVersionFileName, packageIndexSingleData) in checkAll)
 {
-    if (checkStatus == CheckStatus.InDev && results.First(x => x.PackageIndexSingleData == packageIndexSingleData).IsSuccessStatusCode)
-    {
-        Console.WriteLine(packageIndexSingleData.Url.URL);
-    }
+
 }
 
 // await RuyiDistMirrorChecker.GetAllFiles();

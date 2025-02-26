@@ -56,6 +56,7 @@ public class PackageIndexTomlParser
         var result = new List<PackageIndexSingleData>();
         foreach (var packageUrl in urlsResult.Distinct().Select(x => PackageUrl.FromString(x)))
         {
+            if (packageUrl.URL.StartsWith("https://downloads.openwrt.org/")) continue; // 排除
             result.Add(new PackageIndexSingleData(path, packageUrl));
         }
 

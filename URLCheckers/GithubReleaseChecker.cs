@@ -25,8 +25,8 @@ internal class GitHubReleaseChecker : URLCheckerBase
             }
             else
             {
-                Console.WriteLine($"UpdateRequired {data.Url.URL}\n {latest.HtmlUrl}");
-                Console.WriteLine();
+                // Console.WriteLine($"UpdateRequired {data.Url.URL}\n {latest.HtmlUrl}");
+                // Console.WriteLine();
                 return new URLCheckResult(CheckStatus.UpdateRequired, latest.HtmlUrl, data);
             }
         }

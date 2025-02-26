@@ -6,18 +6,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GammaLibrary.Extensions;
+using ShellProgressBar;
 
 namespace RuyiPackageIndexValidator
 {
     internal class WebLinkValidator
     {
         private static HttpClient hc = new();
-
+        private static ProgressBar progressBar;
         public static async Task<ValidateResult[]> Validate(PackageIndexSingleData[] datas)
         {
+            progressBar = new ProgressBar(datas.Length, "Validating Release URLs...",
+                new ProgressBarOptions() { ForegroundColor = ConsoleColor.Cyan });
             var tasks = datas.Select(async data => (data, task: await Exists(data.Url))).ToList();
 
             await Task.WhenAll(tasks);
+            progressBar.Dispose();
             return tasks.Select(x => x.Result)
                 .Select(x => new ValidateResult(x.data, x.task.IsSuccessStatusCode, x.task.HttpCode)).ToArray();
         }
@@ -48,7 +52,7 @@ namespace RuyiPackageIndexValidator
             try
             {
                 var msg = await hc.SendAsync(new HttpRequestMessage(HttpMethod.Head, url.URL));
-
+                progressBar.Tick();
                 return (msg.IsSuccessStatusCode, ((int)msg.StatusCode).ToString());
             }
             catch (Exception e)
