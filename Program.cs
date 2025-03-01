@@ -10,6 +10,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Octokit;
 
+if (!Directory.Exists(RootPath))
+{
+    Console.WriteLine($"路径 {RootPath} 不存在");
+    return;
+}
+
+
 var versions = ManifestFilter.Run();
 
 
@@ -19,6 +26,7 @@ var packageIndexSingleDatas = versions.Select(x => PackageIndexTomlParser.ParseS
 // {
 //     Console.WriteLine(packageUrl.URL);
 // }
+
 var sb = new StringBuilder();
 var results = await WebLinkValidator.Validate(packageIndexSingleDatas);
 var checkAll = await URLCheckerBase.CheckAll(packageIndexSingleDatas, results);
