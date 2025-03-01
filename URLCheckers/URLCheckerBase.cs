@@ -57,7 +57,7 @@ namespace RuyiPackageIndexValidator.URLCheckers
                 {
                     result.Add(new URLCheckResult(CheckStatus.InDev, null, data));
                 }
-                progressBar.Tick();
+                progressBar.Tick(url);
             });
             progressBar.Dispose();
             return result.ToList();

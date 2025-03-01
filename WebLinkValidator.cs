@@ -57,7 +57,7 @@ namespace RuyiPackageIndexValidator
                     return (true, "");
                 }
                 var msg = await hc.SendAsync(new HttpRequestMessage(HttpMethod.Head, requestUri));
-                progressBar.Tick();
+                progressBar.Tick(requestUri);
                 return (msg.IsSuccessStatusCode, ((int)msg.StatusCode).ToString());
             }
             catch (Exception e)
