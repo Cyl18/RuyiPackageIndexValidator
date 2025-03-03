@@ -26,7 +26,14 @@ namespace RuyiPackageIndexValidator.URLCheckers
                 var url = data.Url.URL;
                 if (!results.First(x => x.PackageIndexSingleData == data).IsSuccessStatusCode)
                 {
-                    result.Add(new URLCheckResult(CheckStatus.CannotFindRelease, null, data));
+                    if (results.First(x => x.PackageIndexSingleData == data).HttpCode == "403")
+                    {
+                        result.Add(new URLCheckResult(CheckStatus.CannotFindRelease403, null, data));
+                    }
+                    else
+                    {
+                        result.Add(new URLCheckResult(CheckStatus.CannotFindRelease404, null, data));
+                    }
                 }
                 else if (url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/dist/") || url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/3rdparty/milkv/repacks/"))
                 {
@@ -73,7 +80,8 @@ public enum CheckStatus
 {
     UpdateRequired,
     Failed,
-    CannotFindRelease,
+    CannotFindRelease404,
+    CannotFindRelease403,
     InDev,
     NotImplemented,
     AlreadyNewest,

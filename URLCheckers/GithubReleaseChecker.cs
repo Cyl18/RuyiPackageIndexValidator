@@ -16,7 +16,7 @@ internal class GitHubReleaseChecker : URLCheckerBase
             var latest = (await githubClient.Repository.Release.GetAll(data.Url.Segments[1], data.Url.Segments[2], new ApiOptions(){PageCount = 1, PageSize = 1}))[0];
             if (latest is null)
             {
-                return new URLCheckResult(CheckStatus.CannotFindRelease, "", data);
+                return new URLCheckResult(CheckStatus.CannotFindRelease404, "", data);
             }
 
             if (data.Url.Segments[5] == latest.TagName)

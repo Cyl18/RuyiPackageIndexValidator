@@ -113,7 +113,7 @@ internal class RuyiDistMirrorChecker : URLCheckerBase
 
             if (currentNewestVersion == null)
             {
-                return new URLCheckResult(CheckStatus.CannotFindRelease, null, data);
+                return new URLCheckResult(CheckStatus.CannotFindRelease404, null, data);
             }
 
             if (fileName == currentNewestVersionResult!.FullFileName)

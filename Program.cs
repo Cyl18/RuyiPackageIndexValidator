@@ -45,13 +45,15 @@ foreach (var urlCheckResultse in checkAll.GroupBy(x => x.CheckStatus).OrderBy(x 
             CheckStatus.AlreadyNewest => "√ 已经最新",
             CheckStatus.Failed => "⚠ 检查失败",
             CheckStatus.UpdateRequired => "⬆️ 需要更新",
-            CheckStatus.CannotFindRelease => "× 包不存在",
+            CheckStatus.CannotFindRelease404 => "× 包不存在 404",
+            CheckStatus.CannotFindRelease403 => "× 包不存在 403",
             CheckStatus.NotImplemented => "❔ 无需实现",
             CheckStatus.InDev => "🚧 正在实现",
             _ => throw new ArgumentOutOfRangeException()
         });
         sb.Append(" |");
-        sb.Append($" {newestVersionFileName} | {packageUrl.UnparsedURL} |");
+        sb.Append($" {newestVersionFileName} |");
+        sb.Append($" <{packageUrl.UnparsedURL}> / {packageUrl.URL} |");
         sb.Append($" {relativePath} |");
         sb.AppendLine();
     }
