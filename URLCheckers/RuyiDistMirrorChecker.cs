@@ -15,7 +15,7 @@ internal class RuyiDistMirrorChecker : URLCheckerBase
         var fileName = Path.GetFileName(url);
         var softwareCheckerRegex = new Regex("^(.*?)-");
         var software = softwareCheckerRegex.Match(fileName).Groups[1].Value;
-        var allFiles = await GetAllFiles();
+        var allFiles = await GetAllFiles(url);
         if (software == "qemu")
         {
             softwareCheckerRegex = new Regex("^(.*?-.*?)-");
@@ -133,14 +133,14 @@ internal class RuyiDistMirrorChecker : URLCheckerBase
 
     private static string html;
 
-    public RuyiDistMirrorChecker()
-    {
-        html = hc.GetStringAsync("https://mirror.iscas.ac.cn/ruyisdk/dist/").Result;
-    }
 
-    public static async Task<VersionResult[]> GetAllFiles()
+
+    public static async Task<VersionResult[]> GetAllFiles(string url)
     {
         var doc = new HtmlDocument();
+        var requestUri = Path.GetDirectoryName(url).Replace("\\","/").Replace("https:/", "https://") + "/";
+        
+        html = await hc.GetStringAsync(requestUri);
         doc.LoadHtml(html);
         var trs = doc.DocumentNode.SelectNodes("/html/body/table/tbody/tr");
         var list = new List<VersionResult>();

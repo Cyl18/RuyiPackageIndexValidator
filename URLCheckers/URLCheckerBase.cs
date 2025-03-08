@@ -11,7 +11,7 @@ namespace RuyiPackageIndexValidator.URLCheckers
 {
     public abstract class URLCheckerBase
     {
-        protected static HttpClient hc = new HttpClient();
+        protected static HttpClient hc = new HttpClient(new HttpClientHandler() {AllowAutoRedirect = true});
         public abstract Task<URLCheckResult> Check(PackageIndexSingleData data);
         private static ProgressBar progressBar;
 
@@ -30,9 +30,13 @@ namespace RuyiPackageIndexValidator.URLCheckers
                     {
                         result.Add(new URLCheckResult(CheckStatus.CannotFindRelease403, null, data));
                     }
-                    else
+                    else if (results.First(x => x.PackageIndexSingleData == data).HttpCode == "404")
                     {
                         result.Add(new URLCheckResult(CheckStatus.CannotFindRelease404, null, data));
+                    }
+                    else
+                    {
+                        throw new Exception();
                     }
                 }
                 else if (url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/dist/") || url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/3rdparty/milkv/repacks/"))
