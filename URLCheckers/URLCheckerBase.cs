@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static System.Net.WebRequestMethods;
 
@@ -71,6 +72,14 @@ namespace RuyiPackageIndexValidator.URLCheckers
                 else if (url.StartsWith("https://mirror.iscas.ac.cn/revyos/extra/images/"))
                 {
                     result.Add(await new RuyiMirrorGenericChecker().Check(data));
+                }else if (url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/3rdparty/milkv/repacks/arduino-milkv"))
+                {
+                    var filename = data.Url.Segments[5];
+                    string pattern = @"v\d+\.\d+\.\d+";
+                    Match match = Regex.Match(filename, pattern);
+                    var upstream = $"https://github.com/milkv-duo/duo-buildroot-sdk/releases/tag/{match.Value}";
+                    var data1 = new PackageIndexSingleData(data.Path, PackageUrl.FromString(upstream));
+                    result.Add(await new GitHubReleaseChecker().Check(data1));
                 }
                 else if (url.StartsWith("https://github.com/kendryte/k230_linux_sdk"))
                 {
