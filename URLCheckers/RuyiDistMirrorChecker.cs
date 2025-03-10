@@ -92,7 +92,7 @@ internal class RuyiDistMirrorChecker : URLCheckerBase
                     }
                     else
                     {
-                        return new URLCheckResult(CheckStatus.NotImplemented, null, data);
+                        return new URLCheckResult(CheckStatus.ImplementationNotNeeded, null, data);
 
                     }
                 }

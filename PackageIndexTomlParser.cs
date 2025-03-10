@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using GammaLibrary.Extensions;
+using ShellProgressBar;
 using Tommy;
 
 namespace RuyiPackageIndexValidator;
@@ -28,10 +30,26 @@ public class PackageIndexTomlParser
 
             if (hasUrls)
             {
+                var urls1 = new List<string>();
                 foreach (TomlNode url in urls)
                 {
-                    urlsResult.Add(url.AsString.Value);
+                    urls1.Add(url.AsString.Value);
                 }
+
+                if (urls1.Count > 1)
+                {
+                    var originalLength = urls1.Count;
+                    urls1.RemoveAll(x => x.Contains("mirror"));
+                    Trace.Assert(originalLength - urls1.Count == 1);
+                    urlsResult.Add(urls1.First());
+                }
+                else
+                {
+                    if (urls1.Any())
+                    {
+                        urlsResult.Add(urls1.First());
+                    }
+                }    
             }
             else
             {
@@ -50,6 +68,7 @@ public class PackageIndexTomlParser
                     var distUrl = dist.AsString.Value;
                     urlsResult.Add(distUrl);
                 }
+
             }
         }
 

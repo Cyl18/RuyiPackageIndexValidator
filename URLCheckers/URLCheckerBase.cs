@@ -39,19 +39,20 @@ namespace RuyiPackageIndexValidator.URLCheckers
                         throw new Exception();
                     }
                 }
-                else if (url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/dist/") || url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/3rdparty/milkv/repacks/"))
+                // else if (url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/dist/") || url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/3rdparty/milkv/repacks/"))
+                // {
+                //     result.Add(await new RuyiDistMirrorChecker().Check(data));
+                // }
+                else if ((url.StartsWith("https://mirror.iscas.ac.cn/openeuler-sig-riscv/openEuler-RISC-V/")
+                         || url.StartsWith("https://releases.openkylin.top/1.0/")) && 
+                         !url.StartsWith("https://mirror.iscas.ac.cn/openeuler-sig-riscv/openEuler-RISC-V/preview/openEuler-23.09-V1-riscv64/lpi4a"))
                 {
-                    result.Add(await new RuyiDistMirrorChecker().Check(data));
+                    result.Add(new URLCheckResult(CheckStatus.ImplementationNotNeeded, null, data));
                 }
-                else if (url.StartsWith("https://mirror.iscas.ac.cn/openeuler-sig-riscv/openEuler-RISC-V/")
-                         || url.StartsWith("https://releases.openkylin.top/1.0/"))
-                {
-                    result.Add(new URLCheckResult(CheckStatus.NotImplemented, null, data));
-                }
-                else if (url.StartsWith("https://mirror.iscas.ac.cn/"))
-                {
-                    result.Add(await new RuyiMirrorGenericChecker().Check(data));
-                }
+                // else if (url.StartsWith("https://mirror.iscas.ac.cn/"))
+                // {
+                //     result.Add(await new RuyiMirrorGenericChecker().Check(data));
+                // }
                 else if (url.StartsWith("https://github.com"))
                 {
                     result.Add(await new GitHubReleaseChecker().Check(data));
@@ -59,10 +60,6 @@ namespace RuyiPackageIndexValidator.URLCheckers
                 else if (url.StartsWith("https://mirrors.tuna.tsinghua.edu.cn/openwrt/releases/"))
                 {
                     result.Add(await new OpenWrtChecker().Check(data));
-                }
-                else if (url.StartsWith("wps://"))
-                {
-                    result.Add(await new WPSChecker().Check(data));
                 }
                 else
                 {
@@ -74,8 +71,6 @@ namespace RuyiPackageIndexValidator.URLCheckers
             return result.ToList();
         }
     }
-
-    
 }
 
 public record URLCheckResult(CheckStatus CheckStatus, string? NewestVersionFileName, PackageIndexSingleData PackageIndexSingleData);
@@ -87,7 +82,7 @@ public enum CheckStatus
     CannotFindRelease404,
     CannotFindRelease403,
     InDev,
-    NotImplemented,
+    ImplementationNotNeeded,
     AlreadyNewest,
     // UnableToCheck,
 }

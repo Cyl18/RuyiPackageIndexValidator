@@ -47,7 +47,7 @@ foreach (var urlCheckResultse in checkAll.GroupBy(x => x.CheckStatus).OrderBy(x 
             CheckStatus.UpdateRequired => "⬆️ 需要更新",
             CheckStatus.CannotFindRelease404 => "× 包不存在 404",
             CheckStatus.CannotFindRelease403 => "× 包不存在 403",
-            CheckStatus.NotImplemented => "❔ 无需实现",
+            CheckStatus.ImplementationNotNeeded => "❔ 无需实现",
             CheckStatus.InDev => "🚧 正在实现",
             _ => throw new ArgumentOutOfRangeException()
         });
@@ -60,14 +60,14 @@ foreach (var urlCheckResultse in checkAll.GroupBy(x => x.CheckStatus).OrderBy(x 
 }
 
 var dateTime = DateTime.Now.ToString("s");
-var gist = await GitHubReleaseChecker.githubClient.Gist.Create(new NewGist()
-{
-    Description = $"Ruyi Package Index Test Report-{dateTime}",
-    Files = { new KeyValuePair<string, string>($"ruyi-package-index-test-report-{dateTime}.md", sb.ToString()) },
-    Public = true
-});
-Console.WriteLine();
-Console.WriteLine(gist.HtmlUrl);
+// var gist = await GitHubReleaseChecker.githubClient.Gist.Create(new NewGist()
+// {
+//     Description = $"Ruyi Package Index Test Report-{dateTime}",
+//     Files = { new KeyValuePair<string, string>($"ruyi-package-index-test-report-{dateTime}.md", sb.ToString()) },
+//     Public = true
+// });
+// Console.WriteLine();
+// Console.WriteLine(gist.HtmlUrl);
 sb.ToString().SaveToFile("result.md");
 
 // await RuyiDistMirrorChecker.GetAllFiles();
