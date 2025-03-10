@@ -45,7 +45,8 @@ namespace RuyiPackageIndexValidator.URLCheckers
                 // }
                 else if ((url.StartsWith("https://mirror.iscas.ac.cn/openeuler-sig-riscv/openEuler-RISC-V/")
                          || url.StartsWith("https://releases.openkylin.top/1.0/")) && 
-                         !url.StartsWith("https://mirror.iscas.ac.cn/openeuler-sig-riscv/openEuler-RISC-V/preview/openEuler-23.09-V1-riscv64/lpi4a"))
+                         !url.StartsWith("https://mirror.iscas.ac.cn/openeuler-sig-riscv/openEuler-RISC-V/preview/openEuler-23.09-V1-riscv64/lpi4a")
+                         )
                 {
                     result.Add(new URLCheckResult(CheckStatus.ImplementationNotNeeded, null, data));
                 }
@@ -61,10 +62,21 @@ namespace RuyiPackageIndexValidator.URLCheckers
                 {
                     result.Add(await new OpenWrtChecker().Check(data));
                 }
+                else if (url.StartsWith(
+                             "https://mirror.iscas.ac.cn/openeuler-sig-riscv/openEuler-RISC-V/preview/openEuler-23.09-V1-riscv64/lpi4a"))
+                {
+                    result.Add(MirrorOpenEulerSigLpi4aChecker());
+                }
+                else if (url.StartsWith("https://mirror.iscas.ac.cn/revyos/extra/images/"))
+                {
+                    result.Add(await new RuyiMirrorGenericChecker().Check(data));
+                }
                 else
                 {
                     result.Add(new URLCheckResult(CheckStatus.InDev, null, data));
                 }
+                //https://github.com/kendryte/k230_linux_sdk
+                //https://github.com/milkv-duo/duo-buildroot-sdk/releases
                 progressBar.Tick(url);
             });
             progressBar.Dispose();
