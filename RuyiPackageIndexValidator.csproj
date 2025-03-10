@@ -11,9 +11,11 @@
     <PackageReference Include="GammaLibrary" Version="3.0.0-pre3" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.73" />
     <PackageReference Include="Octokit" Version="14.0.0" />
+    <PackageReference Include="OpenAI-DotNet" Version="8.6.2" />
     <PackageReference Include="Semver" Version="3.0.0" />
     <PackageReference Include="ShellProgressBar" Version="5.2.0" />
     <PackageReference Include="Tommy" Version="3.1.2" />
+    <PackageReference Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>
 
 </Project>

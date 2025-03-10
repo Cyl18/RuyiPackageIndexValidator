@@ -39,7 +39,14 @@ public class PackageIndexTomlParser
                 if (urls1.Count > 1)
                 {
                     var originalLength = urls1.Count;
-                    urls1.RemoveAll(x => x.Contains("mirror"));
+                    if (urls1.Any(x => x.Contains("openwrt")))
+                    {
+                        urls1.RemoveAll(x => x.Contains("openwrt.org"));
+                    }
+                    else
+                    {
+                        urls1.RemoveAll(x => x.Contains("mirror"));
+                    }
                     Trace.Assert(originalLength - urls1.Count == 1);
                     urlsResult.Add(urls1.First());
                 }
@@ -75,7 +82,6 @@ public class PackageIndexTomlParser
         var result = new List<PackageIndexSingleData>();
         foreach (var packageUrl in urlsResult.Distinct().Select(x => PackageUrl.FromString(x)))
         {
-            if (packageUrl.URL.StartsWith("https://downloads.openwrt.org/")) continue; // 排除
             result.Add(new PackageIndexSingleData(path, packageUrl));
         }
 

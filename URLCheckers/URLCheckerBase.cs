@@ -46,7 +46,8 @@ namespace RuyiPackageIndexValidator.URLCheckers
                 //     result.Add(await new RuyiDistMirrorChecker().Check(data));
                 // }
                 else if ((url.StartsWith("https://mirror.iscas.ac.cn/openeuler-sig-riscv/openEuler-RISC-V/")
-                         || url.StartsWith("https://releases.openkylin.top/1.0/")) && 
+                         || url.StartsWith("https://releases.openkylin.top/1.0/")
+                         || url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/3rdparty/canaan/temp/")) && 
                          !url.StartsWith("https://mirror.iscas.ac.cn/openeuler-sig-riscv/openEuler-RISC-V/preview/openEuler-23.09-V1-riscv64/lpi4a")
                          )
                 {
@@ -72,11 +73,11 @@ namespace RuyiPackageIndexValidator.URLCheckers
                 else if (url.StartsWith("https://mirror.iscas.ac.cn/revyos/extra/images/"))
                 {
                     result.Add(await new RuyiMirrorGenericChecker().Check(data));
-                }else if (url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/3rdparty/milkv/repacks/arduino-milkv"))
+                }
+                else if (url.StartsWith("https://mirror.iscas.ac.cn/ruyisdk/3rdparty/milkv/repacks/arduino-milkv"))
                 {
                     var filename = data.Url.Segments[5];
-                    string pattern = @"v\d+\.\d+\.\d+";
-                    Match match = Regex.Match(filename, pattern);
+                    var match = Regex.Match(filename, @"v\d+\.\d+\.\d+");
                     var upstream = $"https://github.com/milkv-duo/duo-buildroot-sdk/releases/tag/{match.Value}";
                     var data1 = new PackageIndexSingleData(data.Path, PackageUrl.FromString(upstream));
                     result.Add(await new GitHubReleaseChecker().Check(data1));
