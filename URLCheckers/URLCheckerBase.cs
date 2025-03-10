@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace RuyiPackageIndexValidator.URLCheckers
 {
@@ -65,17 +66,20 @@ namespace RuyiPackageIndexValidator.URLCheckers
                 else if (url.StartsWith(
                              "https://mirror.iscas.ac.cn/openeuler-sig-riscv/openEuler-RISC-V/preview/openEuler-23.09-V1-riscv64/lpi4a"))
                 {
-                    result.Add(MirrorOpenEulerSigLpi4aChecker());
+                    result.Add(new URLCheckResult(CheckStatus.ImplementationNotNeeded, "", data));
                 }
                 else if (url.StartsWith("https://mirror.iscas.ac.cn/revyos/extra/images/"))
                 {
                     result.Add(await new RuyiMirrorGenericChecker().Check(data));
                 }
+                else if (url.StartsWith("https://github.com/kendryte/k230_linux_sdk"))
+                {
+                    result.Add(new URLCheckResult(CheckStatus.ManualCheckRequired, "", data));
+                }
                 else
                 {
                     result.Add(new URLCheckResult(CheckStatus.InDev, null, data));
                 }
-                //https://github.com/kendryte/k230_linux_sdk
                 //https://github.com/milkv-duo/duo-buildroot-sdk/releases
                 progressBar.Tick(url);
             });
@@ -89,12 +93,13 @@ public record URLCheckResult(CheckStatus CheckStatus, string? NewestVersionFileN
 
 public enum CheckStatus
 {
-    UpdateRequired,
     Failed,
+    UpdateRequired,
+    ManualCheckRequired,
     CannotFindRelease404,
     CannotFindRelease403,
     InDev,
     ImplementationNotNeeded,
-    AlreadyNewest,
+    AlreadyNewest
     // UnableToCheck,
 }

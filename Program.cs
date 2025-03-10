@@ -40,10 +40,12 @@ foreach (var urlCheckResultse in checkAll.GroupBy(x => x.CheckStatus).OrderBy(x 
     {
         var relativePath = Path.GetRelativePath(RootPath, path);
         sb.Append("| ");
+        sb.Append(" |");
         sb.Append(checkStatus switch
         {
             CheckStatus.AlreadyNewest => "√ 已经最新",
             CheckStatus.Failed => "⚠ 检查失败",
+            CheckStatus.ManualCheckRequired => "🤚 手动检查",
             CheckStatus.UpdateRequired => "⬆️ 需要更新",
             CheckStatus.CannotFindRelease404 => "× 包不存在 404",
             CheckStatus.CannotFindRelease403 => "× 包不存在 403",
@@ -51,7 +53,6 @@ foreach (var urlCheckResultse in checkAll.GroupBy(x => x.CheckStatus).OrderBy(x 
             CheckStatus.InDev => "🚧 正在实现",
             _ => throw new ArgumentOutOfRangeException()
         });
-        sb.Append(" |");
         sb.Append($" {newestVersionFileName} |");
         sb.Append($" <{packageUrl.UnparsedURL}> / {packageUrl.URL} |");
         sb.Append($" {relativePath} |");
