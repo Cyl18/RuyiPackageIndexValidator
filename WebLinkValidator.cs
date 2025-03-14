@@ -3,6 +3,7 @@ using RuyiPackageIndexValidator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using GammaLibrary.Extensions;
@@ -58,6 +59,10 @@ namespace RuyiPackageIndexValidator
                 }
                 var msg = await hc.SendAsync(new HttpRequestMessage(HttpMethod.Head, requestUri));
                 progressBar.Tick(requestUri);
+                if ((int)msg.StatusCode == 403)
+                {
+                    return await Exists2(requestUri);
+                }
                 return (msg.IsSuccessStatusCode, ((int)msg.StatusCode).ToString());
             }
             catch (Exception e)
@@ -65,6 +70,14 @@ namespace RuyiPackageIndexValidator
                 Console.WriteLine(e);
                 return (false, "0");
             }
+        }
+
+        private static async Task<(bool IsSuccessStatusCode, string HttpCode)> Exists2(string requestUri)
+        {
+            var hc = new HttpClient();
+            hc.DefaultRequestHeaders.Add("User-Agent", "sth");
+            var msg = await hc.SendAsync(new HttpRequestMessage(HttpMethod.Get, requestUri) {Headers = { Range = new RangeHeaderValue(0,500)}});
+            return (msg.IsSuccessStatusCode, ((int)msg.StatusCode).ToString());
         }
     }
 }

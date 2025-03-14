@@ -43,8 +43,9 @@ namespace RuyiPackageIndexValidator
                         var filePath = Path.Combine(SupportMatrixRootPath, dirName, "README.md");
                         var fileLines = File.ReadAllLines(filePath);
 
-                        var manifestPath = urlCheckResults
-                            .FirstOrDefault(x => x.PackageIndexSingleData.Path.Contains(package.Replace("board-image/", "")));
+                        var manifestPaths = urlCheckResults
+                            .Where(x =>  Path.GetFileName(Path.GetDirectoryName(x.PackageIndexSingleData.Path)) == (package.Replace("board-image/", ""))).ToArray();
+                        var manifestPath = manifestPaths[0];
                         var manifestFileName = Path.GetFileNameWithoutExtension(manifestPath.PackageIndexSingleData.Path);
 
                         if (manifestFileName.Contains("-"))
@@ -54,6 +55,7 @@ namespace RuyiPackageIndexValidator
 
                         var regex = new Regex("^sys_ver: (.*)$");
                         string? version = null;
+
                         foreach (var line in fileLines)
                         {
                             var match = regex.Match(line);
@@ -64,14 +66,7 @@ namespace RuyiPackageIndexValidator
                                 break;
                             }
                         }
-
-                        if (version == null)
-                        {
-                            result.Add(new SupportMatrixValidateResult(SupportMatrixValidateResults.VersionNotExist, package, obj, (manifestFileName, "null")));
-                            continue;
-                        }
-                        version = version?.Trim('"')?.TrimStart('v').Split('-')[0].Split('+')[0];
-                        var regex1 = new Regex(@"^0.(\d{8}).0$");
+                        var regex1 = new Regex(@"^[01].(\d{8}).0$");
                         var match1 = regex1.Match(manifestFileName);
                         if (match1.Success)
                         {
@@ -98,6 +93,14 @@ namespace RuyiPackageIndexValidator
 
                             manifestFileName = rs;
                         }
+
+                        if (version == null)
+                        {
+                            result.Add(new SupportMatrixValidateResult(SupportMatrixValidateResults.VersionNotExist, package, obj, (manifestFileName, "null")));
+                            continue;
+                        }
+                        version = version?.Trim('"')?.TrimStart('v').Split('-')[0].Split('+')[0];
+                        
 
                         bool matched = manifestFileName.Replace(".","").Contains(version.Replace(".", ""));
 

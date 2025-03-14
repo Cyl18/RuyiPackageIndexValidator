@@ -57,6 +57,10 @@ namespace RuyiPackageIndexValidator.URLCheckers
                 // {
                 //     result.Add(await new RuyiMirrorGenericChecker().Check(data));
                 // }
+                else if (url.StartsWith("https://github.com/kendryte/k230_linux_sdk"))
+                {
+                    result.Add(new URLCheckResult(CheckStatus.ManualCheckRequired, "", data));
+                }
                 else if (url.StartsWith("https://github.com"))
                 {
                     result.Add(await new GitHubReleaseChecker().Check(data));
@@ -68,7 +72,11 @@ namespace RuyiPackageIndexValidator.URLCheckers
                 else if (url.StartsWith(
                              "https://mirror.iscas.ac.cn/openeuler-sig-riscv/openEuler-RISC-V/preview/openEuler-23.09-V1-riscv64/lpi4a"))
                 {
-                    result.Add(new URLCheckResult(CheckStatus.ImplementationNotNeeded, "", data));
+                    result.Add(await new RuyiOpenEulerLpi4aChecker().Check(data));
+                }
+                else if (url.StartsWith("https://kendryte-download.canaan-creative.com/developer/k230")) 
+                {
+                    result.Add(await new CanmvChecker().Check(data));
                 }
                 else if (url.StartsWith("https://mirror.iscas.ac.cn/revyos/extra/images/"))
                 {
@@ -82,14 +90,11 @@ namespace RuyiPackageIndexValidator.URLCheckers
                     var data1 = new PackageIndexSingleData(data.Path, PackageUrl.FromString(upstream));
                     result.Add(await new GitHubReleaseChecker().Check(data1));
                 }
-                else if (url.StartsWith("https://github.com/kendryte/k230_linux_sdk"))
-                {
-                    result.Add(new URLCheckResult(CheckStatus.ManualCheckRequired, "", data));
-                }
                 else
                 {
                     result.Add(new URLCheckResult(CheckStatus.InDev, null, data));
                 }
+
                 //https://github.com/milkv-duo/duo-buildroot-sdk/releases
                 progressBar.Tick(url);
             });

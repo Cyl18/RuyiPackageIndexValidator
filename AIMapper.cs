@@ -71,7 +71,7 @@ namespace RuyiPackageIndexValidator
 
         public static SupportMatrixImageSingleData[] GetSupportMatrixImages()
         {
-            var file = File.ReadAllText(Path.Combine(RootPath, "..", "..", "provisioner", "config.yml"));
+            var file = File.ReadAllText(Path.Combine(BoardImagePath, "..", "..", "provisioner", "config.yml"));
             var obj = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build()
                 .Deserialize<RuyiProvisionerConfig>(file);
             
